@@ -1,13 +1,5 @@
 #!/bin/bash
 
-#colors
-purple="\033[0;35m"
-red="\033[1;31m"
-green="\033[1;32m"
-cafe="\033[0;33m"
-blue="\033[1;34m"
-transparent="\e[0m"
-
 #vars
 #DATE=`date "+%d-%m-%Y"`
 DATE=`date "+%Y-%m-%d"`
@@ -24,6 +16,7 @@ device_number=""
 backup_path=""
 HDD_filesystem=""
 
+#Convert bytes to Mega/Tera Bytes
 function bytes_mb_gb_tb()
 {
     let aux=0    
@@ -60,6 +53,7 @@ function bytes_mb_gb_tb()
     esac
 }
 
+#Gets the file that contains the size of the internal storage of the Android device in bytes
 function get_sdcard_size()
 {
     sdcard_size_file=sdcard_bytes_size_$device_id.txt
@@ -71,6 +65,7 @@ function get_sdcard_size()
     echo $size
 }
 
+#Find the name of the directory inside the file, and prints the size of the directory in the second column
 function get_dir_file_size()
 {
     directories_list_file=../contents_list_$device_id.txt
@@ -79,6 +74,7 @@ function get_dir_file_size()
     echo $size
 }
 
+#Prints the available space of the HDD
 function HDD_space()
 {
    #ava_disk_space_bytes=`df -B1 "$HDD_filesystem" | awk '{print $4}'` 
@@ -90,6 +86,7 @@ function HDD_space()
    echo $ava_disk_space_bytes
 }
 
+#Copy all the content inside the /sdcard/ directory of the Android device
 function fullBackup()
 {
    ava_disk_space_bytes=`HDD_space`
@@ -128,6 +125,7 @@ function fullBackup()
    cp ~/'Backups Scripts'/compress_backup_directory.sh .
 }
 
+#Shows the content of the /sdcard/ directory and let you choose which File/Directory want to copy
 function partialBackup()
 {
    mkdir sdcard
@@ -309,75 +307,70 @@ function checkRequirements()
 #Main Rutine
 ############
 
-function startBackup()
-{
-   echo ""
-   sudo adb start-server
+echo ""
+sudo adb start-server
 
-   echo -e "\nRunning backup script..."
+echo -e "\nRunning backup script..."
 
-   echo -e "\nDATE: "$DATE
-   sleep 1
+echo -e "\nDATE: "$DATE
+sleep 1
 
-   printAndroidDevices
+printAndroidDevices
 
-   getDeviceToBackup
+getDeviceToBackup
 
-   device_id=`echo -e $devices_list | awk 'FNR =='$device_number`
+device_id=`echo -e $devices_list | awk 'FNR =='$device_number`
 
-   checkRequirements
+checkRequirements
 
-   cd "$backup_path"
+cd "$backup_path"
  
-   if [ -d $DATE ]; then
-      echo -e "\nThe backup of today already exists!"
-      sleep 1
-      echo -e "\nCheck the backup folder!\n"
-      exit 6
-   fi
-
-   mkdir $DATE
-   cd $DATE
-      
-   echo -e "\nStarting the backup process...\n"
-
-   touch dir_list_sdcard.txt
-   touch temp_dir_list.txt
-
-   adb -s $device_id shell "cd sdcard && ls -la" | awk '{print $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18}' > dir_list_sdcard.txt
-   sed -i '1,3d' dir_list_sdcard.txt
-
-   echo -e "\nThese are all the files and directories in 'sdcard/': \n"
-   sleep 5
-
-   cat dir_list_sdcard.txt
-
+if [ -d $DATE ]; then
+   echo -e "\nThe backup of today already exists!"
    sleep 1
+   echo -e "\nCheck the backup folder!\n"
+   exit 6
+fi
 
-   valid_option=false
+mkdir $DATE
+cd $DATE
+      
+echo -e "\nStarting the backup process...\n"
 
-   while [ $valid_option == false ]; do
-      echo -e "\nWhat do you want to do?"
-      echo "    a) A full backup ( all files and directories )"
-      echo -e "    b) Choose which files and/or directories to backup\n"
+touch dir_list_sdcard.txt
+touch temp_dir_list.txt
 
-      printf '%s' '-> '
-      read answer
+adb -s $device_id shell "cd sdcard && ls -la" | awk '{print $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18}' > dir_list_sdcard.txt
+sed -i '1,3d' dir_list_sdcard.txt
 
-      if [[ "$answer" == "$a"  ]] || [[ "$answer" == "$b" ]]; then
-         valid_option=true
-      else
-         echo -e "\nInvalid option."
-      fi
-   done
+echo -e "\nThese are all the files and directories in 'sdcard/': \n"
+sleep 5
 
-   if [ "$answer" = "$a"  ]; then
-      fullBackup
+cat dir_list_sdcard.txt
+
+sleep 1
+
+valid_option=false
+
+while [ $valid_option == false ]; do
+   echo -e "\nWhat do you want to do?"
+   echo "    a) A full backup ( all files and directories )"
+   echo -e "    b) Choose which files and/or directories to backup\n"
+
+   printf '%s' '-> '
+   read answer
+
+   if [[ "$answer" == "$a"  ]] || [[ "$answer" == "$b" ]]; then
+      valid_option=true
    else
-      partialBackup
+      echo -e "\nInvalid option."
    fi
+done
 
-   exit 0
-}
+if [ "$answer" = "$a"  ]; then
+   fullBackup
+else
+   partialBackup
+fi
 
-startBackup
+exit 0
