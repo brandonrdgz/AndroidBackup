@@ -107,7 +107,16 @@ public class FileDirSizeWriteFile
 	    for( File tempFile : files )
 	    {
 		size = sizeOf( tempFile );
-		data = size + "\t" + tempFile.getName;
+
+		if( tempFile.isDirectory() )
+		{
+                   data = "d\t" + size + "\t" + tempFile.getName();
+		}
+		else
+		{
+                   data = "f\t" + size + "\t" + tempFile.getName();
+		}
+
 		fileWriter.println( data );
 	    }
 	    fileWriter.close();
