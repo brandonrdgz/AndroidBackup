@@ -16,7 +16,7 @@ device_number=""
 backup_path=""
 HDD_filesystem=""
 
-#Convert bytes to Mega/Tera Bytes
+#Convert bytes to K/M/T Bytes
 function bytes_mb_gb_tb()
 {
     let aux=0    
