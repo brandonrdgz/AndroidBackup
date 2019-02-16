@@ -2,10 +2,10 @@
 
 if [ -d sdcard ]
 then
-    echo -e "\n[*] Compressing backup directory...\n"
+    echo -e "\nCompressing backup directory...\n"
     zip -r sdcard.zip sdcard
     sleep 1
-    echo -e "\n[*] Done"
+    echo -e "\nDone"
 else
-    echo -e "\n[*] Nothing to compress\n"
+    echo -e "\nNothing to compress\n"
 fi
