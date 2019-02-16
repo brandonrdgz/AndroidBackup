@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #vars
-#DATE=`date "+%d-%m-%Y"`
 DATE=`date "+%Y-%m-%d"`
 a=a
 b=b
