@@ -1,5 +1,3 @@
-package filedirsizewritefile;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,7 +19,7 @@ public class FileDirSizeWriteFile
 	{
 	    while( ! flag )
 	    {
-	        System.out.println( "\n1) Full Backup\n2) Partial Backup" );
+	        System.out.println( "\n1) Size of the whole /sdcard/ directory\n2) Size of all the files and directories inside the /sdcard/ directory" );
 
 	        try
 	        {
@@ -109,7 +107,7 @@ public class FileDirSizeWriteFile
 	    for( File tempFile : files )
 	    {
 		size = sizeOf( tempFile );
-		data = tempFile.getName() + "\t" + size;
+		data = size + "\t" + tempFile.getName;
 		fileWriter.println( data );
 	    }
 	    fileWriter.close();
