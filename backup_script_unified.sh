@@ -130,16 +130,16 @@ function partialBackup()
    mkdir sdcard
    cd sdcard
 
-   adb -s $device_id pull /sdcard/contents_list.txt > /dev/null 2>&1
-   mv contents_list.txt contents_list_$device_id.txt
-   mv contents_list_$device_id.txt ..
+   #adb -s $device_id pull /sdcard/contents_list.txt > /dev/null 2>&1
+   #mv contents_list.txt contents_list_$device_id.txt
+   #mv contents_list_$device_id.txt ..
 
-   while read -u 2 j; do
+   while read -u 2 line; do
       #permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
       
-      j=`echo -e $j | cut -f1`
-      permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
-      type=`echo ${permissions:0:1}`
+      j=`echo -e $line | cut -f3`
+      #permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
+      type=`echo -e $line | cut -f1`
 
       sleep 3
 
@@ -336,16 +336,15 @@ cd $DATE
       
 echo -e "\nStarting the backup process...\n"
 
-touch dir_list_sdcard.txt
 touch temp_dir_list.txt
 
-adb -s $device_id shell "cd sdcard && ls -la" | awk '{print $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18}' > dir_list_sdcard.txt
-sed -i '1,3d' dir_list_sdcard.txt
+adb -s $device_id pull /sdcard/contents_list.txt > /dev/null 2>&1
+mv contents_list.txt contents_list_$device_id.txt
 
 echo -e "\nThese are all the files and directories in 'sdcard/': \n"
 sleep 5
 
-cat dir_list_sdcard.txt
+cat contents_list_$device_id.txt | cut -f3
 
 sleep 1
 
