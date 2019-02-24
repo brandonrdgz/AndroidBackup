@@ -130,15 +130,10 @@ function partialBackup()
    mkdir sdcard
    cd sdcard
 
-   #adb -s $device_id pull /sdcard/contents_list.txt > /dev/null 2>&1
-   #mv contents_list.txt contents_list_$device_id.txt
-   #mv contents_list_$device_id.txt ..
-
    while read -u 2 line; do
       #permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
       
       j=`echo -e $line | cut -f3`
-      #permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
       type=`echo -e $line | cut -f1`
 
       sleep 3
