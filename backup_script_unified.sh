@@ -76,9 +76,6 @@ function get_dir_file_size()
 #Prints the available space of the HDD
 function HDD_space()
 {
-   #ava_disk_space_bytes=`df -B1 "$HDD_filesystem" | awk '{print $4}'` 
-   #ava_disk_space_bytes=`echo $ava_disk_space_bytes | awk '{print $2}'`
-
    #FNR prints the line number, {print $#} prints the number field 
    ava_disk_space_bytes=`df -B1 "$HDD_filesystem" | awk 'FNR == 2 {print $4}'`
 
@@ -131,7 +128,6 @@ function partialBackup()
    cd sdcard
 
    while read -u 2 line; do
-      #permissions=`adb -s $device_id shell "cd sdcard && ls -la" | grep "$j" | cut -d " " -f1`
       
       j=`echo -e $line | cut -f3`
       type=`echo -e $line | cut -f1`
@@ -143,7 +139,6 @@ function partialBackup()
       else
          showFile
       fi
-   #done < ../dir_list_sdcard.txt
    done 2< ../contents_list_$device_id.txt
 }
 
