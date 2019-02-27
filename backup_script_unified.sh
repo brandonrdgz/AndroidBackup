@@ -2,13 +2,7 @@
 
 #vars
 DATE=`date "+%Y-%m-%d"`
-a=a
-b=b
 i=1
-directory=d
-file=f
-yes=y
-no=n
 
 devices_list=""
 device_number=""
@@ -134,7 +128,7 @@ function partialBackup()
 
       sleep 3
 
-      if [ "$type" == "$directory" ]; then
+      if [ "$type" = "d" ]; then
          showDirectoryContents
       else
          showFile
@@ -180,12 +174,12 @@ function showDirectoryContents()
       echo -e "\n\nDo you want to backup '$j/' directory? [ y/n ]"
       read danswer
 
-      if [ "$danswer" = "$yes" ]; then
+      if [ "$danswer" = "y" ]; then
          sleep 3
          pullDirectory 
          valid_danswer=true
          sleep 3
-      elif [ "$danswer" != "$no" ]; then
+      elif [ "$danswer" != "n" ]; then
          echo -e "\nInvalid option."
       else
          valid_danswer=true
@@ -211,12 +205,12 @@ function showFile()
       echo -e "\n\nDo you want to backup '$j' file? [ y/n ]"
       read fanswer
 
-      if [ "$fanswer" = "$yes" ]; then
+      if [ "$fanswer" = "y" ]; then
          sleep 3
          pullFile $j
          valid_fanswer=true
          sleep 3
-      elif [ "$fanswer" != "$no" ]; then
+      elif [ "$fanswer" != "n" ]; then
          echo -e "\nInvalid option"
       else
          valid_fanswer=true
@@ -243,7 +237,7 @@ function printAndroidDevices()
       line_num=$(( line_num + 1 ))
    done
 
-   if [ $line_num == 1 ]; then
+   if [ $line_num = 1 ]; then
       echo -e "No Android devices connected!\n"
       exit 1
    fi
@@ -348,14 +342,14 @@ while [ $valid_option == false ]; do
    printf '%s' '-> '
    read answer
 
-   if [[ "$answer" == "$a"  ]] || [[ "$answer" == "$b" ]]; then
+   if [[ "$answer" = "a"  ]] || [[ "$answer" = "b" ]]; then
       valid_option=true
    else
       echo -e "\nInvalid option."
    fi
 done
 
-if [ "$answer" = "$a"  ]; then
+if [ "$answer" = "a"  ]; then
    fullBackup
 else
    partialBackup
