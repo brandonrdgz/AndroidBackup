@@ -12,59 +12,59 @@ HDD_filesystem=""
 #Convert bytes to K/M/T Bytes
 function bytes_mb_gb_tb()
 {
-    let aux=0    
-    let cont=0
-    flag=true
-    let value=$1    
+   let aux=0    
+   let cont=0
+   flag=true
+   let value=$1    
 
-    while $flag; do
-        if [ $( printf "%.0f" $value ) -eq 0 ]; then
-            flag=false
-        else
-            aux=$value
-            value=`bc -l <<< "$value/1024"`
-            let "cont++"
-        fi
-    done
+   while $flag; do
+      if [ $( printf "%.0f" $value ) -eq 0 ]; then
+         flag=false
+      else
+         aux=$value
+         value=`bc -l <<< "$value/1024"`
+         let "cont++"
+      fi
+   done
 
-    if [ $cont != 0 ]; then
-        let "cont--"
-    fi
+   if [ $cont != 0 ]; then
+      let "cont--"
+   fi
 
 
-    case "$cont" in
-    
-        0) echo "$aux bytes";;
+   case "$cont" in
+   
+      0) echo "$aux bytes";;
 
-        1) echo "$aux KB";;
+      1) echo "$aux KB";;
 
-        2) echo "$aux MB";;
+      2) echo "$aux MB";;
 
-        3) echo "$aux GB";;
+      3) echo "$aux GB";;
 
-        4) echo "$aux TB";;
-    esac
+      4) echo "$aux TB";;
+   esac
 }
 
 #Gets the file that contains the size of the internal storage of the Android device in bytes
 function get_sdcard_size()
 {
-    sdcard_size_file=sdcard_bytes_size_$device_id.txt
-    
-    while read -r line; do
-        size="$line"
-    done < "$sdcard_size_file"
+   sdcard_size_file=sdcard_bytes_size_$device_id.txt
 
-    echo $size
+   while read -r line; do
+      size="$line"
+   done < "$sdcard_size_file"
+
+   echo $size
 }
 
 #Find the name of the directory inside the file, and prints the size of the directory in the second column
 function get_dir_file_size()
 {
-    directories_list_file=../contents_list_$device_id.txt
-    size=`grep -R $1 $directories_list_file | cut -f2`
+   directories_list_file=../contents_list_$device_id.txt
+   size=`grep -R $1 $directories_list_file | cut -f2`
 
-    echo $size
+   echo $size
 }
 
 #Prints the available space of the HDD
@@ -170,7 +170,7 @@ function showDirectoryContents()
 
    valid_danswer=false
 
-   while [ $valid_danswer == false ]; do
+   while [ $valid_danswer = false ]; do
       echo -e "\n\nDo you want to backup '$j/' directory? [ y/n ]"
       read danswer
 
@@ -201,7 +201,7 @@ function showFile()
 
    valid_fanswer=false
 
-   while [ $valid_fanswer == false ]; do
+   while [ $valid_fanswer = false ]; do
       echo -e "\n\nDo you want to backup '$j' file? [ y/n ]"
       read fanswer
 
@@ -247,7 +247,7 @@ function getDeviceToBackup()
 {
    valid_dev_num=false
 
-   while [ $valid_dev_num == false ]; do
+   while [ $valid_dev_num = false ]; do
       echo -e "\nType the number of the device to backup:"
       read device_number
 
@@ -334,7 +334,7 @@ sleep 1
 
 valid_option=false
 
-while [ $valid_option == false ]; do
+while [ $valid_option = false ]; do
    echo -e "\nWhat do you want to do?"
    echo "    a) A full backup ( all files and directories )"
    echo -e "    b) Choose which files and/or directories to backup\n"
