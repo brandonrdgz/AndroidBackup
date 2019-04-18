@@ -4,6 +4,10 @@
 DATE=`date "+%Y-%m-%d"`
 i=1
 
+drives_list=""
+drive_number=""
+drive_fileSystem=""
+drive_path=""
 devices_list=""
 device_number=""
 backup_path=""
@@ -70,8 +74,9 @@ function get_dir_file_size()
 #Prints the available space of the HDD
 function HDD_space()
 {
+   drive_fileSystem=`df -h | grep "$drive_path" | awk '{print $1}'`
    #FNR prints the line number, {print $#} prints the number field 
-   ava_disk_space_bytes=`df -B1 "$HDD_filesystem" | awk 'FNR == 2 {print $4}'`
+   ava_disk_space_bytes=`df -B1 "$drive_fileSystem" | awk 'FNR == 2 {print $4}'`
 
    echo $ava_disk_space_bytes
 }
@@ -218,6 +223,45 @@ function showFile()
    done
 }
 
+function printDrives()
+{
+   echo -e "\nList of connected USB or Hard Disk drives"
+   echo "-----------------------------------------"
+   line_num=0
+
+   IFS=$'\n'
+
+   for line in `df -h | grep "/dev/sd[b-z]"`; do
+      line_num=$(( line_num + 1 ))
+
+      drive=`echo "$line" | awk '{print $6}'`
+
+      if [[ $line_num != 0 ]] && [[ ! -z $line ]]; then
+         echo "$line_num) $drive"
+         drives_list+="$drive\n"
+      fi
+   done
+
+   if [ $line_num = 0 ]; then
+      echo -e "No USB or Hard Disk drives connected!\n"
+      exit
+   fi
+}
+
+function getDrives()
+{
+   valid_drive_num=false
+
+   while [ $valid_drive_num = false ]; do
+      echo -e "\nType the number of the drive to use:"
+      read drive_number
+
+      if [[ $drive_number -gt 0 ]] && [[ $drive_number -le line_num ]] ; then
+         valid_drive_num=true
+      fi
+   done
+}
+
 function printAndroidDevices()
 {
    echo -e "\nList of connected Android devices:"
@@ -257,35 +301,6 @@ function getDeviceToBackup()
    done
 }
 
-function checkRequirements()
-{
-   HDD_filesystem=`sudo blkid -U 574627C9574BE550`
-
-   if [ -z $HDD_filesystem ]; then
-      echo -e "\n[*] The HDD is different from the backups HDD or isn't connected\n"
-      sleep 1
-      exit 3
-   fi
-
-   HDD_mountpoint=`df -h | grep $HDD_filesystem | awk '{print $6}'`
-
-   if [ -z "$HDD_mountpoint" ]; then
-      echo -e "\n[*] HDD of backups isn't mounted\n"
-      sleep 1
-      exit 4
-   fi
-
-   backup_path=$HDD_mountpoint
-   backup_path+="/Backups/"
-   backup_path+=$device_id
-
-   if [ ! -d "$backup_path" ]; then
-      echo -e "\n[*] Directory of backup doesn't exists\n"
-      sleep 1
-      exit 5
-   fi
-}
-
 ############
 #Main Rutine
 ############
@@ -304,7 +319,31 @@ getDeviceToBackup
 
 device_id=`echo -e $devices_list | awk 'FNR =='$device_number`
 
-checkRequirements
+printDrives
+
+getDrives
+
+drive_path=`echo -e $drives_list | awk 'FNR =='$drive_number`
+backup_path=$drive_path
+
+if [ ! -d "$drive_path/Backups/$device_id" ]; then
+   echo -e "\nThe directory for the backup doesn't exist"
+   echo -e "\nCreating the backup directory"
+   mkdir "$backup_path/Backups"
+
+   if [ ! $? -eq 0 ]; then
+      fileSystemType=`lsblk -f | grep "$backup_path" | awk '{print $2}'`
+      echo -e "\nThe File System type of that drive is: '$fileSystemType', and is mounted in 'Read-Only' mode\n"
+      exit
+   fi
+
+   backup_path+="/Backups"
+   backup_path+="/$device_id"
+   mkdir $backup_path
+   sleep 3
+else
+   backup_path+="/Backups/$device_id"
+fi
 
 cd "$backup_path"
  
@@ -317,7 +356,7 @@ fi
 
 mkdir $DATE
 cd $DATE
-      
+
 echo -e "\nStarting the backup process...\n"
 
 touch temp_dir_list.txt
