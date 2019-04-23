@@ -11,7 +11,6 @@ drive_path=""
 devices_list=""
 device_number=""
 backup_path=""
-HDD_filesystem=""
 
 #Convert bytes to K/M/T Bytes
 function bytes_mb_gb_tb()
@@ -128,12 +127,13 @@ function partialBackup()
 
    while read -u 2 line; do
       
-      j=$( echo -e ${line} | cut -f3 )
+      file=$( echo -e ${line} | cut -f3 )
       type=$( echo -e ${line} | cut -f1 )
 
       sleep 3
 
       if [ "${type}" = "d" ]; then
+         directory=$file
          showDirectoryContents
       else
          showFile
@@ -143,30 +143,30 @@ function partialBackup()
 
 function pullDirectory()
 {
-   echo -e "\nBacking up directory '${j}/' ...\n"
+   echo -e "\nBacking up directory '${directory}/' ...\n"
    sleep 3
-   adb -s ${device_id} pull /sdcard/"${j}"/
+   adb -s ${device_id} pull /sdcard/"${directory}"/
 }
 
 function pullFile()
 {
-   echo -e "\nBacking up file '${j}' ...\n"
+   echo -e "\nBacking up file '${file}' ...\n"
    sleep 3
-   adb -s ${device_id} pull /sdcard/"${j}"	
+   adb -s ${device_id} pull /sdcard/"${file}"	
 }
 
 function showDirectoryContents()
 {
-   echo -e "\n\n\n\nThese are the files and directories inside the '${j}/' directory: \n\n"
+   echo -e "\n\n\n\nThese are the files and directories inside the '${directory}/' directory: \n\n"
    sleep 1
-   adb -s ${device_id} shell "cd sdcard && ls -la '${j}'" | awk '{print $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18}' > ../temp_dir_list.txt
+   adb -s ${device_id} shell "cd sdcard && ls -la '${directory}'" | awk '{print $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18}' > ../temp_dir_list.txt
    sed -i '1,3d' ../temp_dir_list.txt
    cat ../temp_dir_list.txt
 
-   directory_size_bytes=$( get_dir_file_size ${j} )
+   directory_size_bytes=$( get_dir_file_size ${directory} )
    directory_size=$( bytes_mb_gb_tb ${directory_size_bytes} )
 
-   echo -e "\n\nDirectory '${j}' size: ${directory_size}"
+   echo -e "\n\nDirectory '${directory}' size: ${directory_size}"
 
    HDD_ava_space_bytes=$( HDD_space )
    HDD_ava_space=$( bytes_mb_gb_tb ${HDD_ava_space_bytes} )
@@ -176,7 +176,7 @@ function showDirectoryContents()
    valid_danswer=false
 
    while [ ${valid_danswer} = false ]; do
-      echo -e "\n\nDo you want to backup '${j}/' directory? [ y/n ]"
+      echo -e "\n\nDo you want to backup '${directory}/' directory? [ y/n ]"
       read danswer
 
       if [ "${danswer}" = "y" ]; then
@@ -194,10 +194,10 @@ function showDirectoryContents()
 
 function showFile()
 {
-   file_size_bytes=$( get_dir_file_size ${j} )
+   file_size_bytes=$( get_dir_file_size ${file} )
    file_size=$( bytes_mb_gb_tb ${file_size_bytes} )
 
-   echo -e "\n\n\n\nFile '${j}' size: ${file_size}"
+   echo -e "\n\n\n\nFile '${file}' size: ${file_size}"
 
    HDD_ava_space_bytes=$( HDD_space )
    HDD_ava_space=$( bytes_mb_gb_tb ${HDD_ava_space_bytes} )
@@ -207,12 +207,12 @@ function showFile()
    valid_fanswer=false
 
    while [ ${valid_fanswer} = false ]; do
-      echo -e "\n\nDo you want to backup '${j}' file? [ y/n ]"
+      echo -e "\n\nDo you want to backup '${file}' file? [ y/n ]"
       read fanswer
 
       if [ "${fanswer}" = "y" ]; then
          sleep 3
-         pullFile ${j}
+         pullFile ${file}
          valid_fanswer=true
          sleep 3
       elif [ "${fanswer}" != "n" ]; then
@@ -301,9 +301,9 @@ function getDeviceToBackup()
    done
 }
 
-############
-#Main Rutine
-############
+#############
+#Main Rutine#
+#############
 
 echo ""
 sudo adb start-server
